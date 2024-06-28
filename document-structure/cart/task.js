@@ -5,11 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateQuantity(target, isIncrease) {
         const quantityValue = target.closest('.product__quantity').querySelector('.product__quantity-value');
         let quantity = parseInt(quantityValue.textContent, 10);
-        if (isIncrease) {
-            quantity++;
-        } else if (quantity > 1) {
-            quantity--;
-        }
+        quantity = isIncrease ? quantity + 1 : Math.max(1, quantity - 1);
         quantityValue.textContent = quantity;
     }
 
@@ -21,31 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
         let cartProduct = cartContainer.querySelector(`.cart__product[data-id="${productId}"]`);
 
         if (cartProduct) {
-            // Если товар уже в корзине, увеличиваем количество
             const cartProductCount = cartProduct.querySelector('.cart__product-count');
             cartProductCount.textContent = parseInt(cartProductCount.textContent, 10) + quantity;
         } else {
-            // Если товара нет в корзине, создаем новый элемент
-            cartProduct = document.createElement('div');
-            cartProduct.className = 'cart__product';
-            cartProduct.dataset.id = productId;
-
-            const cartProductImage = document.createElement('img');
-            cartProductImage.className = 'cart__product-image';
-            cartProductImage.src = productImageSrc;
-
-            const cartProductCount = document.createElement('div');
-            cartProductCount.className = 'cart__product-count';
-            cartProductCount.textContent = quantity;
-
-            cartProduct.appendChild(cartProductImage);
-            cartProduct.appendChild(cartProductCount);
-
-            cartContainer.appendChild(cartProduct);
+            const cartProductHTML = `
+                <div class="cart__product" data-id="${productId}">
+                    <img class="cart__product-image" src="${productImageSrc}">
+                    <div class="cart__product-count">${quantity}</div>
+                </div>
+            `;
+            cartContainer.insertAdjacentHTML('beforeend', cartProductHTML);
         }
     }
 
-    // Обработчики событий для кнопок увеличения/уменьшения и добавления в корзину
     productsContainer.addEventListener('click', function(event) {
         if (event.target.classList.contains('product__quantity-control_dec')) {
             updateQuantity(event.target, false);
